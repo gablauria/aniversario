@@ -163,24 +163,30 @@
     <!-- 5. CARTA CON SELLO DE LACRE -->
     <section class="max-w-xl mx-auto text-center">
       <h2 class="text-xl sm:text-2xl font-bold text-white mb-2">Mensaje Final</h2>
-      <p class="text-sm text-gray-400 mb-6">Tocá el lacre para abrir la carta de aniversario.</p>
+      <p class="text-sm text-gray-400 mb-6">Tocá para abrir la carta de aniversario.</p>
 
       <div id="envelope" class="cursor-pointer bg-gradient-to-b from-rose-950/30 to-gray-900 border border-rose-500/30 hover:border-rose-500/60 transition-all rounded-3xl p-8 max-w-md mx-auto relative group">
         <div id="envelopeSeal" class="flex flex-col items-center">
           <div class="w-16 h-16 bg-rose-600 group-hover:scale-105 transition-transform rounded-full flex items-center justify-center text-2xl shadow-lg shadow-rose-600/40 border-2 border-rose-300">
             💌
           </div>
-          <span class="text-xs text-rose-300 font-semibold mt-4">Romper sello de lacre</span>
+          <span class="text-xs text-rose-300 font-semibold mt-4">Romper sello</span>
         </div>
 
         <div id="letterContent" class="hidden text-left bg-amber-50 text-gray-800 p-6 sm:p-8 rounded-2xl shadow-2xl relative border border-amber-200">
-          <p class="handwriting text-2xl sm:text-3xl text-rose-700 mb-3">Mi amor,</p>
           <p id="letterBodyText" class="handwriting text-xl sm:text-2xl leading-relaxed text-gray-700">
-            Parece mentira que ya haya pasado un año entero desde que empezó todo esto. Gracias por cada mate, por cada risa, por bancarme en todas y por hacer que la rutina sea hermosa a tu lado.
-            <br><br>
-            ¡Feliz primer aniversario! Te amo muchísimo.
-          </p>
-          <p class="handwriting text-2xl text-right text-rose-700 mt-4">Siempre juntos ❤️</p>
+  Hola amor , un año ya.... Gracias por aparecer en nuestras vidas , a mi me salvaste , anda a saber como estaría... Toda la Vida te voy a estar agradecido , Perdon por hacerte dudar de q quiero todo con vos, en los momentos de mayor felicidad me autosaboteo y arruino todo , No me siento merecedor de la increible y Hermosa Mujer que Sos... Perdon , ya lo voy a poder asimilar , Perdon por Ser tan celoso , pero me muero Si Te Pierdo, nunk pense que me podian amar tan lindo a mi y a mis hijas , Gracias por aparecer en nuestras Vidas.
+  <br><br>
+  No quiero que dudes mas de todo lo q quiero con vos , quiero q vivamos juntos ,que podamos construir un Hogar , que tengamos a Enzito ,que podamos ser todos una familia ! 
+  <br><br>
+  Gracias por haberme bancado los primeros meses que fueron dificiles , Gracias por abrirme las puertas de tu casa y de tu familia , No me Faltes nunca Mi Pastelito. No Quiero Vivir un solo dia Sin Vos ! Ya van a Venir las Buenas , si logramos ser tan felices en las malas no me quiero ni imaginar lo felices q vamos a ser..... quiero una vida al lado tuyo !
+  <br><br>
+  Prometo seguir aprendiendo a soltar mis miedos e inseguridades y dejarme amar, porque sos lo mejor que nos paso! Gracias por la pasiencia! 
+  <br><br>
+  Voy a dejar los errores d ortografia y la mala redaccion para que veas que no use IA , y t voy a hacer safar de descifrar mi horrible letra....
+  <br><br>
+  TE AMO 💖! x Toda una Vida Juntos.
+</p>
         </div>
       </div>
     </section>
@@ -479,16 +485,20 @@
       safeConfetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
     }
 
-    // REPRODUCTOR DE PLAYLIST YOUTUBE
+// ==========================================
+    // 🎵 REPRODUCTOR DE PLAYLIST YOUTUBE CORREGIDO
+    // ==========================================
     let ytPlayer;
     let isPlaying = false;
     let autoPlayTriggered = false;
 
+    // Crear div oculto para el reproductor de YouTube
     const iframeContainer = document.createElement('div');
     iframeContainer.id = 'yt-player-element';
     iframeContainer.style.display = 'none';
     document.body.appendChild(iframeContainer);
 
+    // Cargar SDK de YouTube
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     const firstScriptTag = document.getElementsByTagName('script')[0];
@@ -502,50 +512,58 @@
           'playsinline': 1,
           'controls': 0,
           'playlist': YOUTUBE_PLAYLIST.join(','),
-          'loop': 1
+          'loop': 1,
+          'autoplay': 0
         },
         events: {
-          'onReady': onPlayerReady
+          'onStateChange': onPlayerStateChange
         }
       });
     }
 
-    function onPlayerReady(event) {
-      event.target.playVideo();
-    }
-
-    function togglePlay() {
+    // Sincroniza el botón únicamente cuando el reproductor realmente cambia de estado
+    function onPlayerStateChange(event) {
       const btn = document.getElementById('playBtn');
-      if (!ytPlayer || typeof ytPlayer.getPlayerState !== 'function') return;
+      if (!btn) return;
 
-      const state = ytPlayer.getPlayerState();
-      if (state !== YT.PlayerState.PLAYING) {
-        ytPlayer.playVideo();
+      if (event.data === YT.PlayerState.PLAYING) {
         isPlaying = true;
         btn.innerText = '⏸';
-      } else {
-        ytPlayer.pauseVideo();
+      } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
         isPlaying = false;
         btn.innerText = '▶';
       }
     }
 
+    function togglePlay() {
+      if (!ytPlayer || typeof ytPlayer.getPlayerState !== 'function') return;
+
+      const state = ytPlayer.getPlayerState();
+      if (state !== YT.PlayerState.PLAYING) {
+        ytPlayer.playVideo();
+      } else {
+        ytPlayer.pauseVideo();
+      }
+    }
+
+    // Disparar reproducción con el primer toque o clic
     function triggerAutoPlayOnInteraction() {
       if (autoPlayTriggered) return;
-      autoPlayTriggered = true;
+      
       if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
         ytPlayer.playVideo();
-        isPlaying = true;
-        const btn = document.getElementById('playBtn');
-        if (btn) btn.innerText = '⏸';
+        autoPlayTriggered = true;
+        
+        // Limpiar escuchadores una vez activado
+        document.removeEventListener('click', triggerAutoPlayOnInteraction);
+        document.removeEventListener('touchstart', triggerAutoPlayOnInteraction);
+        document.removeEventListener('scroll', triggerAutoPlayOnInteraction);
       }
-      document.removeEventListener('click', triggerAutoPlayOnInteraction);
-      document.removeEventListener('touchstart', triggerAutoPlayOnInteraction);
     }
 
     document.addEventListener('click', triggerAutoPlayOnInteraction);
     document.addEventListener('touchstart', triggerAutoPlayOnInteraction);
-
+    document.addEventListener('scroll', triggerAutoPlayOnInteraction);
     // EVENTOS TRAS CARGAR DOM
     document.addEventListener('DOMContentLoaded', function() {
       setInterval(updateCounter, 1000);
